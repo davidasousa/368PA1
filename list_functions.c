@@ -3,32 +3,39 @@
 #include <stdbool.h>
 #include <assert.h>
 
-static Node* node_finder(Node* head, int idx) // Works Based On 0 Based Index
-{
-	Node* current_node = head;
-	for(int i = 0; i < idx; i++)
-	{
-		current_node = current_node -> next;	
-	}
-	return current_node;
-}
+// NODED FINDER -> SLOW == NO LOOPS
 
-static void swap_adj_nodes(Node* base) // Function Takes A Node And Swaps The Links Of The Next Two Nodes
+static void swap_adj_nodes(Node* prev) // Function Takes A Node And Swaps The Links Of The Next Two Nodes
 {
-	Node* temp = base -> next -> next -> next;
-	Node* left = base -> next;
+	Node* temp = prev -> next -> next -> next;
+	Node* left = prev -> next;
 	
-	base -> next = base -> next -> next;
-	base -> next -> next = left;
-	base -> next -> next -> next = temp;
+	prev -> next = prev -> next -> next;
+	prev -> next -> next = left;
+	prev -> next -> next -> next = temp;
 }
 
-static void list_sort(Node* head, int num_elems)
+static Node** list_sort(Node* head, int num_elems)
 {
 	// Insertion Sort With A Linked List
-	printf("%ld\n", node_finder(head, 0) -> value);
-	printf("%ld", node_finder(head, 1) -> value);
+	// Takes N Elements From 0 - N Of A List Sorts It 
+	// Sorting A Linked List Goes From The Front To The Back Looking Forwards
 	
+	// First Find Smallest Element
+	Node* curr = head -> next;
+	Node* prev = head;
+
+	Node** first_node = malloc(sizeof(*first_node));
+	first_node = &prev;
+
+	if(curr -> value < prev -> value)
+	{
+		curr -> next = prev;
+		prev -> next = NULL;
+		first_node = &curr;
+	}
+	return first_node;
 }
+	
 
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */	

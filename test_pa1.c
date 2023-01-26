@@ -105,30 +105,6 @@ static int _test_insert() {
 	mu_end();
 }
 
-static int _test_node_finder() {
-	mu_start();
-	//────────────────────
-	
-	Node* new_node = malloc(sizeof(*new_node));
-	new_node -> next = NULL;
-	new_node -> value = 0;
-
-	append_list(new_node, 1);
-	append_list(new_node, 2);
-	append_list(new_node, 3);
-	append_list(new_node, 6);
-	append_list(new_node, 4);
-	
-	mu_check((node_finder(new_node, 3)) -> value == 3);
-	mu_check((node_finder(new_node, 4)) -> value == 6);
-	mu_check((node_finder(new_node, 5)) -> value == 4);
-
-	free_list(new_node);
-	
-	//────────────────────
-	mu_end();
-}
-
 static int _test_swap_nodes_2() { // WHEN USING A LL OF 2 NODES THE HEAD NODE IS LOST, requires a third dummy node at the beginning
 	mu_start();
 	//────────────────────
@@ -171,27 +147,26 @@ static int _test_swap_nodes_4() {
 	mu_end();
 }
 
-static int _test_list_sort() {
+static int _test_list_sort_2() {
 	mu_start();
 	//────────────────────
 	Node* new_node = malloc(sizeof(*new_node));
 	new_node -> next = NULL;
 	new_node -> value = 1;
 
-	append_list(new_node, 2);
-	append_list(new_node, 3);
-	append_list(new_node, 4);
-
-	mu_check(new_node -> value = 1);
-	mu_check(new_node -> next -> value = 2);
-	mu_check(new_node -> next -> next -> value = 3);
-	mu_check(new_node -> next -> next -> next -> value = 4);
+	append_list(new_node, -1);
 	
-	list_sort(new_node, 0);
-	free_list(new_node);
+	Node** list_head = list_sort(new_node, 2);
+
+	Node* head_node = *list_head;
+
+	//mu_check( == -1);	
+
+	//free_list((*list_head));
 	//────────────────────
 	mu_end();
 }
+
 
 // TESTS FOR SWAPING ADJACENT ELEMENTS IN A LINKED LIST TO BE USED IN LIST SORT
 
@@ -201,10 +176,9 @@ int main(int argc, char* argv[]) {
 	mu_run(_test_array_sort_3);
 	mu_run(_test_array_sort_10_neg);
 	mu_run(_test_insert);
-	mu_run(_test_node_finder);
 	mu_run(_test_swap_nodes_2);
 	mu_run(_test_swap_nodes_4);
-	mu_run(_test_list_sort);
+	mu_run(_test_list_sort_2);
 
 	return EXIT_SUCCESS;
 }
