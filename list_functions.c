@@ -15,26 +15,79 @@ static void swap_adj_nodes(Node* prev) // Function Takes A Node And Swaps The Li
 	prev -> next -> next -> next = temp;
 }
 
-static Node** list_sort(Node* head, int num_elems)
+static void list_sort(Node* head, Node** new_head, int num_elems)
 {
 	// Insertion Sort With A Linked List
 	// Takes N Elements From 0 - N Of A List Sorts It 
 	// Sorting A Linked List Goes From The Front To The Back Looking Forwards
 	
 	// First Find Smallest Element
+	
 	Node* curr = head -> next;
 	Node* prev = head;
-
-	Node** first_node = malloc(sizeof(*first_node));
-	first_node = &prev;
-
-	if(curr -> value < prev -> value)
+	
+	if(num_elems == 2)
 	{
-		curr -> next = prev;
-		prev -> next = NULL;
-		first_node = &curr;
+		if(curr -> value < prev -> value)
+		{		
+			curr -> next = prev;
+			prev -> next = NULL;
+			*new_head = curr;
+		}
+		else
+			*new_head = prev;
 	}
-	return first_node;
+	else
+	{
+		*new_head = prev;
+
+		Node* first = prev;
+
+		if(curr -> value < prev -> value)
+		{
+			Node* temp = curr -> next;
+			curr -> next = prev;
+			prev -> next = temp;
+			*new_head = curr;
+
+			first = curr;
+			curr = prev -> next;	
+
+		}
+		else
+		{	
+			first = prev;
+			prev = curr;
+			curr = curr -> next;
+		}
+
+		for(int i = 1; i < num_elems - 1; i++)
+		{
+			if(curr -> value < prev -> value)
+			{
+				Node* temp = curr -> next;
+				first -> next = curr;
+				curr -> next = prev;
+				prev -> next = temp;
+
+				first = first -> next;
+				curr = prev -> next;
+			}
+			else
+			{	
+				first = prev;
+				prev = curr;
+				curr = curr -> next;
+			}
+		}
+
+		
+
+
+
+// second pass
+
+	}
 }
 	
 
