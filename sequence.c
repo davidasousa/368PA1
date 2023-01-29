@@ -3,11 +3,15 @@
 #include <stdbool.h>
 #include <assert.h>
 
-static long exponent(long base, long power)
+static int exponent(long base, long power)
 {
-	long final = base;
+	int final = base;
 	for(int exp_idx = power; exp_idx > 1; exp_idx--)
 		final = final * base;
+	
+	if(power == 0)
+		final = 1;
+
 	return final;
 }
 
@@ -22,24 +26,62 @@ static long logg(long base, long value) // Returns One Above The Largest Exponen
 	return exp;
 }
 
-static long tree_height(long n)
+static long tree_height(int n)
 {
-	long tree_t = 0;
-	while(exponent(2, tree_t)) // Finding Max Possible Height Of The Tree
+	long height = 0;
+
+	while(exponent(2, height) <= n)
 	{
-		tree_t++;	
+		height++;
 	}
-	return tree_t;
+	
+	return height;
 }
 
-static int seq_alloc(int n)
+static void array_sort(long* array, int num_elems)
 {
-	return exponent(logg(2, n), 2);
+	for(int temp_idx = 1; temp_idx < num_elems; temp_idx++)
+	{
+		long temp = *(array + temp_idx);
+		int comp_idx = temp_idx;
+		while(comp_idx > 0 && *(array + comp_idx - 1) > temp)
+		{
+			*(array + comp_idx) = *(array + comp_idx - 1);
+			comp_idx = comp_idx - 1;
+		}
+		*(array + comp_idx) = temp;
+	}
 }
 
-long *Generate_2p3q_Seq(int n, int *seq_size)
+long *Generate_2p3q_Seq(int n, int *seq_size) // FIX EXP AND LOG APPROX FOR SIZE OF ARRAY
 {
-	long* seq = malloc(sizeof(*seq));	
+	long* seq = malloc(sizeof(*seq) * (*seq_size));		
+	if(seq != NULL)
+	{
+		long height = tree_height(n);
+
+		int elem_num = 0;
+
+		for(int tree_idx = 0; tree_idx <= height; tree_idx++)
+		{
+			long left = exponent(2, tree_idx);
+			for(int exp_idx = tree_idx; exp_idx >= 0; exp_idx--)
+			{
+				if(left < n)
+				{
+					*(seq + elem_num++) = left;
+				}
+				left = 3 * (left / 2);
+			}
+		}	
+		*seq_size = elem_num;
+		seq = realloc(seq,sizeof(*seq) * elem_num);
+		array_sort(seq, elem_num);
+	}
+	else
+	{
+		*seq_size = 0;
+	}
 	return seq;
 }
 
