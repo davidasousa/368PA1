@@ -2,6 +2,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "shell_list.h"
+#include "sequence.h"
+
+typedef struct _dummy 
+{
+	Node* curr;
+	Node* prev;
+} dummy;
+
+static int exponent(long base, long power)
+{
+	int final = base;
+	for(int exp_idx = power; exp_idx > 1; exp_idx--)
+		final = final * base;
+	
+	if(power == 0)
+		final = 1;
+
+	return final;
+}
+
+static long logg(long base, long value) // Returns One Above The Largest Exponent Value For Mallocing The Sequence
+{
+	long exp = 1;
+	while(value >= base)
+	{
+		value /= base;
+		exp++;
+	}
+	return exp;
+}
 
 static void append_list(Node* head, long value)
 {
@@ -16,6 +47,27 @@ static void append_list(Node* head, long value)
 	{
 		append_list(head -> next, value);
 	}	
+}
+
+static Node* scanner(Node* head, int value)
+{
+	Node* base = head;
+	for(int scan_idx = 0; scan_idx < value; scan_idx++)
+	{
+		base = base -> next;
+	}
+	return base;
+}
+
+static int list_size(Node* head)
+{
+	int size = 0;
+	while(head != NULL)
+	{
+		size++;
+		head = head -> next;
+	}
+	return size;
 }
 
 Node *List_Load_From_File(char *filename)
@@ -37,36 +89,67 @@ Node *List_Load_From_File(char *filename)
 		{
 			return NULL;
 		}
-		int size = bytes / 8;
+		size = bytes / 8;
 	}
 	
 	long* buffer = malloc(sizeof(*buffer) * size);
-	fread(buffer, 8, size, fp);
-
-	int buff_idx = 0;
-
-	Node* head = malloc(sizeof(*head));
-	head -> value = *(buffer + buff_idx);
-	head -> next = NULL;
-
-	for(buff_idx = 1; buff_idx < size - 1; buff_idx++)
-		append_list(head, buffer[buff_idx]);	
+	int longs = fread(buffer, 8, size, fp);
 
 	fclose(fp);
-	free(buffer);
 
-	return head;
+	Node* head = malloc(sizeof(*head));
+	head -> value = buffer[0];
+	head -> next = NULL;
+	
+	for(int list_idx = 1; list_idx < longs ; list_idx++)
+	{
+		append_list(head, buffer[list_idx]);
+	}
+
+	free(buffer);
+	return head;	
 }
 
-int List_Save_To_File(char *filename, Node *list);
-
-Node *List_Shellsort(Node *list, long *n_comp);
-
-typedef struct _dummy 
+int List_Save_To_File(char *filename, Node *list)
 {
-	Node* curr;
-	Node* prev;
-} dummy;
+	
+	FILE *fp = fopen(filename, "w");
+	int size = list_size(list);
+
+	if(list == NULL || size == 0)
+	{
+		fclose(fp);
+	}
+	
+	long* storage = malloc(sizeof(*storage) * size);
+	Node* curr = list;
+
+	for(int print_idx = 0; print_idx < size; print_idx++)
+	{
+		*(storage + print_idx) = curr -> value;
+		curr = curr -> next;
+	}
+	fwrite(storage, 8, size, fp);
+	free(storage);
+
+	fclose(fp);
+	return size;
+	
+}
+
+static void stack_push(Node* head, long val)
+{
+	if(head -> next == NULL)
+	{
+		Node* temp = malloc(sizeof(*temp));
+		temp -> value = val;
+		temp -> next = NULL;
+		head -> next = temp;
+	}
+	else
+		stack_push(head -> next, val);
+	return;
+}
 
 static void bubble_sort_list(Node *head, int size, Node** head_ptr)
 {
@@ -119,5 +202,63 @@ static void bubble_sort_list(Node *head, int size, Node** head_ptr)
 	return;
 }
 
+static void free_list(Node* head)
+{
+	if(head -> next != NULL)
+	{
+		free_list(head -> next);
+	}
+	free(head);
+}
+
+Node *List_Shellsort(Node *list, long *n_comp)
+{
+	int size = list_size(list); // FINDING SIZE WORKS
+								
+	int num_ks = exponent(logg(2,size),2);
+	n_comp = Generate_2p3q_Seq(size, &num_ks); // GENERATION OF THE SEQUENCE WORKS
+	
+	//Node* stack_base; // Initializing Stack Base
+	int k;
+	
+	for(int k_idx = num_ks - 1; k_idx >= 0; k_idx--) // ITERATING K FROM K_MAX TO 1
+	{
+		k = n_comp[k_idx]; // ASSIGNING K FOR EACH K VAL - WORKS
+
+		for(int sub_array_idx = 0; sub_array_idx < k; sub_array_idx++) // Iterating For Each Subarray 0 - K
+		{		
+			Node* stack_base; // Initializing Stack Base
+							  
+			// For Each SubArray Place The Relevant Node Values In The Stack -> Sort The Stack -> Put Them Back In True Order
+			
+			Node* temp_base = malloc(sizeof(*temp_base)); // Initializing The Base Of The Stack Temporarily
+			temp_base -> value = 0; 
+			temp_base -> next = NULL;
+
+			int sub_elem_idx;
+			for(sub_elem_idx = 0; (sub_elem_idx * k + sub_array_idx) < size; sub_elem_idx++) // Incrementing Based On Sub Array Width And The Number Of The Sub Array
+			{
+																   // ADD THESE TO A STACK
+				stack_push(temp_base, scanner(list, sub_elem_idx * k + sub_array_idx) -> value); // ADDING TO STACK
+			}
+
+			stack_base = temp_base -> next; // Removing and freeing dummy_head
+			free(temp_base);
+
+
+			bubble_sort_list(stack_base, sub_elem_idx, &stack_base); // Sorting The Stack
+
+			for(int stack_idx = 0; (stack_idx * k + sub_array_idx) < size; stack_idx++)
+			{
+				scanner(list, (stack_idx * k + sub_array_idx)) -> value = scanner(stack_base, stack_idx) -> value;
+			}
+			free_list(stack_base);
+		}
+						   
+	}	
+	free(n_comp);
+	return list;
+
+}
 
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */

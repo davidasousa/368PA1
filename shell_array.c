@@ -2,6 +2,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "shell_array.h"
+#include "sequence.h"
+
+static int exponent(long base, long power)
+{
+	int final = base;
+	for(int exp_idx = power; exp_idx > 1; exp_idx--)
+		final = final * base;
+	
+	if(power == 0)
+		final = 1;
+
+	return final;
+}
+
+static long logg(long base, long value) // Returns One Above The Largest Exponent Value For Mallocing The Sequence
+{
+	long exp = 1;
+	while(value >= base)
+	{
+		value /= base;
+		exp++;
+	}
+	return exp;
+}
 
 long *Array_Load_From_File(char *filename, int *size)
 {
@@ -26,7 +51,7 @@ long *Array_Load_From_File(char *filename, int *size)
 	}
 
 	long* values = malloc(sizeof(*values) * (*size));
-	size_t readings = fread(values, 8, *size, fp);
+	fread(values, 8, *size, fp);
 	fclose(fp);
 
 	return values;
