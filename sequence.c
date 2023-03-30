@@ -56,9 +56,17 @@ static void array_sort(long* array, int num_elems)
 
 long *Generate_2p3q_Seq(int n, int *seq_size) // FIX EXP AND LOG APPROX FOR SIZE OF ARRAY
 {
+    long* seq;
+
+    if(n == 0 || n == 1)
+    {
+        *seq_size = 0;
+        seq = malloc(sizeof(*seq * *seq_size));
+        return seq; 
+    }
+
 	*seq_size = exponent(logg(2,n),2); // PASS BY ADDRESS
-											 //
-	long* seq = malloc(sizeof(*seq) * (*seq_size));		
+	seq = malloc(sizeof(*seq) * (*seq_size));		
 	if(seq != NULL)
 	{
 		long height = tree_height(n);

@@ -3,23 +3,37 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
+#include <limits.h>
 #include "sequence.h"
 #include "shell_array.h"
 #include "shell_list.h"
-#include <limits.h>
 
-static void free_list(Node* head)
+static void free_list(Node* head) // Iteratively
 {
-	if(head -> next != NULL)
-	{
-		free_list(head -> next);
-	}
-	free(head);
+    Node* curr = head;
+
+    while(curr != NULL)
+    {
+        Node* temp = curr;
+        curr = curr -> next;
+        free(temp);
+    }
 }
+
+static void print_list(Node* head)
+{
+    if(head == NULL)
+        return;
+
+    printf("\n%ld\n",head -> value);
+    print_list(head -> next);
+    return;
+}
+
 
 int main(int argc, char* argv[]) {
 
-	if(argc > 3)
+	if(argc == 4)
 	{
 		if(strcmp(argv[1],"-a") == 0) // ARRAY HAS BEEN CHOSEN
 		{
@@ -29,37 +43,48 @@ int main(int argc, char* argv[]) {
 			int size = 0;
 			long comp = 0;
 
-			long* array_file = Array_Load_From_File(input_file, &size);
-			if(array_file == NULL)
+			long* array = Array_Load_From_File(input_file, &size);
+			if(array == NULL)
 				return EXIT_FAILURE;
 
-			Array_Shellsort(array_file, size, &comp);
+			Array_Shellsort(array, size, &comp);
 
-			int num_longs = Array_Save_To_File(output_file, array_file, size); // Valgrind Seg Fault Here
+			int num_longs = Array_Save_To_File(output_file, array, size);
+            if(num_longs != size)
+            {
+                free(array);
+                return EXIT_FAILURE;
+            }
 
-			free(array_file);
+            fprintf(stdout, "%ld\n", comp);
 
-			printf("%ld\n\n./pa1 -a %s %s\n", comp, input_file, output_file);
+			free(array);
+            return EXIT_SUCCESS;
+
 		}
 		if(strcmp(argv[1],"-l") == 0) // ARRAY HAS BEEN CHOSEN
 		{
-			char* input_file = argv[2];
-			char* output_file = argv[3];
+            char* input_file = argv[2];
+            char* output_file = argv[3];
 
-			Node* list_file = List_Load_From_File(input_file);	
-			
-			long comp = 0;
-			Node* head = List_Shellsort(list_file, &comp);
+            Node* list = List_Load_From_File(input_file);
+            if(list == NULL)
+                return EXIT_FAILURE;
 
-			int elems = List_Save_To_File(output_file, head);
-				
-			free_list(head);
+            print_list(list);
 
-			printf("%ld\n\n./pa1 -l %s %s\n", comp, input_file, output_file);	
+            long comp = 0;
+            list = List_Shellsort(list, &comp);
+
+            printf("\n");
+            print_list(list);
+            
+            free_list(list);
+            return EXIT_SUCCESS;
 		}
 	}
 			
 	
-	return EXIT_SUCCESS;
+	return EXIT_FAILURE;
 }
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */
