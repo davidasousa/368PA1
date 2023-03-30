@@ -65,19 +65,14 @@ Node* List_Shellsort(Node* list, long* n_comp)
     
     int k = 3;
 
-    Node* left_prev = NULL; // left prev is null in the first shell but it will start with a value in other shells
-    Node* right_prev = list;
-    Node* left = list;
-    Node* right = list;
 
-    Node* right_prev_start = list;
-
-    // Starting Val For Right And Right Prev
+    // Starting Values
     
-    for(int find_idx = 0; find_idx < k - 1; find_idx++)
-        right_prev_start = right_prev_start -> next;
-    right = right_prev_start -> next;
-    right_prev = right_prev_start;
+    //Node* right_prev_start = list;
+    Node* left_prev = NULL;
+    Node* left = list;
+    Node* right_prev = list;
+    Node* right = right_prev -> next;
 
     Node* head = list;
 
@@ -89,9 +84,13 @@ Node* List_Shellsort(Node* list, long* n_comp)
         swap_count = 0;
 
         left_prev = NULL;
-        right_prev = right_prev_start;
+        right_prev = head;
+
+        for(int find_idx = 0; find_idx < k - 1; find_idx++)
+            right_prev = right_prev -> next; // Finding The First Previous Node To Right
+                                                         
         left = head;
-        right = right_prev_start -> next;
+        right = right_prev -> next;
 
         while(right != NULL)
         {
@@ -119,17 +118,26 @@ Node* List_Shellsort(Node* list, long* n_comp)
                     right_prev -> next = left;
                     left -> next = right_next;
                 }
+                Node* temp = right;
+                right = left;
+                left = temp;
             }
             
-            // Iterating Right And Left One Time
-            
+            // Iterating Right And Left One Time 
+            /*            
             left_prev = right_prev;
             for(int find_idx = 0; find_idx < k; find_idx++)
-            {
                 right_prev = right_prev -> next;
-            }
             right = right_prev -> next;
-            left = left_prev -> next;
+            left = left_prev -> next; 
+            */
+
+            // figure out how to sort all shell in teh same loop
+
+            right_prev = right;
+            right = right -> next;
+            left_prev = left;
+            left = left -> next;
         }
     }
 
