@@ -37,10 +37,10 @@ long *Array_Load_From_File(char *filename, int *size)
 int Array_Save_To_File(char *filename, long *array, int size) // IF ARRAY IS NULL OR SIZE IS 0 THAN CREATE AN EMPTY FILE
 {
 	FILE *fp = fopen(filename, "w");
-	if(array == NULL || size == 0)
+	if(array == NULL || size == 0 || fp == NULL)
 	{
-        free(array);
 		fclose(fp);
+        return 0;
 	}
     int tot_written = fwrite(array, sizeof(*array), size, fp);
 

@@ -43,6 +43,25 @@ Node* List_Load_From_File(char* filename)
     return head_node;
 }
 
+int List_Save_To_File(char* filename, Node* list)
+{
+    int writes = 0;
+    FILE* fp = fopen(filename, "w");
+    if(fp == NULL)
+    {
+        return 0;
+    }
+    while(list != NULL)
+    {
+        long num = list -> value;
+        fwrite(&num, sizeof(long), 1, fp);
+        list = list -> next;
+        writes++;
+    }
+    fclose(fp);
+    return writes;
+}
+
 Node* List_Shellsort(Node* list, long* n_comp)
 {
     // Getting The Size Of The List
@@ -63,85 +82,104 @@ Node* List_Shellsort(Node* list, long* n_comp)
     
     // Sorting One Shell Works
     
-    int k = 3;
-
-
-    // Starting Values
-    
-    //Node* right_prev_start = list;
     Node* left_prev = NULL;
     Node* left = list;
     Node* right_prev = list;
-    Node* right = right_prev -> next;
-
+    Node* right = list;
     Node* head = list;
-
-    // want to check if no swaps happend
-
-    int swap_count = 1;
-    while(swap_count != 0)
+    
+    for(int k_idx = seq_size; k_idx > 0; k_idx--)
     {
-        swap_count = 0;
+        int k = seq[k_idx - 1]; 
 
-        left_prev = NULL;
-        right_prev = head;
-
-        for(int find_idx = 0; find_idx < k - 1; find_idx++)
-            right_prev = right_prev -> next; // Finding The First Previous Node To Right
-                                                         
-        left = head;
-        right = right_prev -> next;
-
-        while(right != NULL)
-        {
-            // Swapping 
-            
-            if(left -> value > right -> value)
+        if(k == 1)
+        { 
+            int swap_count = 1;
+            while(swap_count != 0)
             {
-                swap_count++;
-                Node* left_next = left -> next;
-                Node* right_next = right -> next;
+                swap_count = 0;
+                right = head -> next;
+                left = head;
+                left_prev = NULL;
 
-                if(left_prev == NULL)
+                while(right != NULL)
                 {
-                    right -> next = left_next;
-                    right_prev -> next = left;
-                    left -> next = right_next;
-
-                    head = right;
+                    *n_comp = *n_comp + 1;
+                    if(left -> value > right -> value)
+                    {
+                        Node* right_next = right -> next;
+                        if(left_prev == NULL)
+                        {
+                            right -> next = left;
+                            left -> next = right_next;
+                        }
+                        else
+                        {
+                            left_prev -> next = right;
+                            right -> next = left;
+                            left -> next = right_next;
+                        }
+                    }        
+                    left_prev = left;
+                    left = right;
+                    right = right -> next;
                 }
-                else 
+            } 
+        }
+        else
+        {
+
+            int swap_count = 1;
+            while(swap_count != 0)
+            {
+                swap_count = 0;
+
+                left_prev = NULL;
+                right_prev = head;
+
+                for(int find_idx = 0; find_idx < k - 1; find_idx++)
+                    right_prev = right_prev -> next;
+                                                                 
+                left = head;
+                right = right_prev -> next;
+
+                while(right != NULL)
                 {
-                    left_prev -> next = right;
-                    right -> next = left_next;
+                    *n_comp = *n_comp + 1;
+                    if(left -> value > right -> value)
+                    {
+                        swap_count++;
+                        Node* left_next = left -> next;
+                        Node* right_next = right -> next;
 
-                    right_prev -> next = left;
-                    left -> next = right_next;
+                        if(left_prev == NULL)
+                        {
+                            right -> next = left_next;
+                            right_prev -> next = left;
+                            left -> next = right_next;
+
+                            head = right;
+                        }
+                        else 
+                        {
+                            left_prev -> next = right;
+                            right -> next = left_next;
+
+                            right_prev -> next = left;
+                            left -> next = right_next;
+                        }
+                        Node* temp = right;
+                        right = left;
+                        left = temp;
+                    }
+                    right_prev = right;
+                    right = right -> next;
+                    left_prev = left;
+                    left = left -> next;
                 }
-                Node* temp = right;
-                right = left;
-                left = temp;
-            }
-            
-            // Iterating Right And Left One Time 
-            /*            
-            left_prev = right_prev;
-            for(int find_idx = 0; find_idx < k; find_idx++)
-                right_prev = right_prev -> next;
-            right = right_prev -> next;
-            left = left_prev -> next; 
-            */
-
-            // figure out how to sort all shell in teh same loop
-
-            right_prev = right;
-            right = right -> next;
-            left_prev = left;
-            left = left -> next;
+            } 
         }
     }
-
-
     free(seq);
     return head;
 }
