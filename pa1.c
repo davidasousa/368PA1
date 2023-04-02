@@ -20,15 +20,6 @@ static void free_list(Node* head) // Iteratively
     }
 }
 
-static void print_list(Node* head, Node* prev)
-{
-    if(head == NULL)
-        return;
-    printf("\n%ld\n",head -> value);
-    print_list(head -> next, prev);
-    return;
-}
-
 int main(int argc, char* argv[]) {
 
 	if(argc == 4)
@@ -69,15 +60,24 @@ int main(int argc, char* argv[]) {
             if(list == NULL)
                 return EXIT_FAILURE;
 
-            //Node* prev = NULL;
-
             long comp = 0;
             list = List_Shellsort(list, &comp);
 
             int num_longs = List_Save_To_File(output_file, list);
             if(num_longs == 0)
                 return EXIT_FAILURE;
-            
+
+/*
+            Node* prev = list;
+            Node* head = list -> next;
+            while(head != NULL)
+            {
+                if(prev -> value > head -> value)
+                    printf("Out of order");
+                prev = head;
+                head = head -> next;
+            }
+ */           
             fprintf(stdout, "%ld\n", comp);
             free_list(list);
             return EXIT_SUCCESS;

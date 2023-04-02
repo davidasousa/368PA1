@@ -87,44 +87,50 @@ Node* List_Shellsort(Node* list, long* n_comp)
     Node* right_prev = list;
     Node* right = list;
     Node* head = list;
-    
+
+    Node* last_unsorted_node = NULL;
+
     for(int k_idx = seq_size; k_idx > 0; k_idx--)
     {
         int k = seq[k_idx - 1]; 
 
         if(k == 1)
         { 
-            int swap_count = 1;
-            while(swap_count != 0)
-            {
-                swap_count = 0;
-                right = head -> next;
-                left = head;
-                left_prev = NULL;
+            //int swap_count = 1;
+            //while(swap_count != 0)
+            //{
+             //   swap_count = 0;
+            right = head -> next;
+            left = head;
+            left_prev = NULL;
 
-                while(right != NULL)
+            while(right != NULL)
+            {
+                if(right == last_unsorted_node)
+                    break;
+
+                *n_comp = *n_comp + 1;
+                if(left -> value > right -> value)
                 {
-                    *n_comp = *n_comp + 1;
-                    if(left -> value > right -> value)
+                    last_unsorted_node = right;
+                    Node* right_next = right -> next;
+                    if(left_prev == NULL)
                     {
-                        Node* right_next = right -> next;
-                        if(left_prev == NULL)
-                        {
-                            right -> next = left;
-                            left -> next = right_next;
-                        }
-                        else
-                        {
-                            left_prev -> next = right;
-                            right -> next = left;
-                            left -> next = right_next;
-                        }
-                    }        
-                    left_prev = left;
-                    left = right;
-                    right = right -> next;
-                }
-            } 
+                        right -> next = left;
+                        left -> next = right_next;
+                    }
+                    else
+                    {
+                        left_prev -> next = right;
+                        right -> next = left;
+                        left -> next = right_next;
+                    }
+                }        
+                left_prev = left;
+                left = right;
+                right = right -> next;
+            }
+            //} 
         }
         else
         {
@@ -145,6 +151,9 @@ Node* List_Shellsort(Node* list, long* n_comp)
 
                 while(right != NULL)
                 {
+                    if(right == last_unsorted_node)
+                        break;
+
                     *n_comp = *n_comp + 1;
                     if(left -> value > right -> value)
                     {
@@ -171,12 +180,16 @@ Node* List_Shellsort(Node* list, long* n_comp)
                         Node* temp = right;
                         right = left;
                         left = temp;
+
+                        last_unsorted_node = left;
                     }
                     right_prev = right;
                     right = right -> next;
                     left_prev = left;
                     left = left -> next;
                 }
+                if(k * 3 <= seq[seq_size - 1])
+                    break;
             } 
         }
     }
