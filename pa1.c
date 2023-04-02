@@ -64,20 +64,12 @@ int main(int argc, char* argv[]) {
             list = List_Shellsort(list, &comp);
 
             int num_longs = List_Save_To_File(output_file, list);
-            if(num_longs == 0)
-                return EXIT_FAILURE;
-
-/*
-            Node* prev = list;
-            Node* head = list -> next;
-            while(head != NULL)
+            if(num_longs == -1)
             {
-                if(prev -> value > head -> value)
-                    printf("Out of order");
-                prev = head;
-                head = head -> next;
+                free_list(list);
+                return EXIT_FAILURE;
             }
- */           
+
             fprintf(stdout, "%ld\n", comp);
             free_list(list);
             return EXIT_SUCCESS;

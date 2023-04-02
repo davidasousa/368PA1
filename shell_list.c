@@ -49,7 +49,7 @@ int List_Save_To_File(char* filename, Node* list)
     FILE* fp = fopen(filename, "w");
     if(fp == NULL)
     {
-        return 0;
+        return -1;
     }
     while(list != NULL)
     {
@@ -96,10 +96,6 @@ Node* List_Shellsort(Node* list, long* n_comp)
 
         if(k == 1)
         { 
-            //int swap_count = 1;
-            //while(swap_count != 0)
-            //{
-             //   swap_count = 0;
             right = head -> next;
             left = head;
             left_prev = NULL;
@@ -130,7 +126,6 @@ Node* List_Shellsort(Node* list, long* n_comp)
                 left = right;
                 right = right -> next;
             }
-            //} 
         }
         else
         {
