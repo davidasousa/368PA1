@@ -62,7 +62,7 @@ void Array_Shellsort(long *array, int size, long *n_comp)
 
     for(int k = seq_size - 1; k > -1; k--)
     {
-        int k_val = seq[k];
+        long k_val = seq[k];
         for(int j = k_val; j < size; j++)
         {
             long temp_r = *(array + j);

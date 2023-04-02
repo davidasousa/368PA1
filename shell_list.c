@@ -92,7 +92,7 @@ Node* List_Shellsort(Node* list, long* n_comp)
 
     for(int k_idx = seq_size; k_idx > 0; k_idx--)
     {
-        int k = seq[k_idx - 1]; 
+        long k = seq[k_idx - 1]; 
 
         if(k == 1)
         { 
